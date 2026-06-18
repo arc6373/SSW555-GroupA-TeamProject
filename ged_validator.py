@@ -206,6 +206,13 @@ class GEDCOM_Validator:
             # End for
         # End with
 
+        # Run validations
+        for individual in self.individuals:
+            individual.validate()
+
+        for family in self.families:
+            family.validate(self.individuals)
+
         # Now print the tables
         self.print_invidiuals()
         print()

@@ -37,7 +37,11 @@ class Individual:
     ###########################################################################
 
     def validate(self):
-        pass
+        if self._death is not None and self._birthday is not None:
+            if self._death < self._birthday:
+                print(f'ERROR: Individual {self._uid} ({self._name}): death {self._death.strftime("%Y-%m-%d")} occurs before birth {self._birthday.strftime("%Y-%m-%d")}')
+                return False
+        return True
     # End validate
 
 

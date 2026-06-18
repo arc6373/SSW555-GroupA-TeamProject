@@ -1,5 +1,5 @@
 # System Imports
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Local imports
 # None
@@ -33,7 +33,24 @@ class Family:
     ###########################################################################
 
     def validate(self, individuals):
-        pass
+        valid = True
+
+        for child_id in self._children:
+            child = next((i for i in individuals if i.uid == child_id), None)
+            if child is None or child.birthday is None:
+                continue
+
+            if self._married is not None and child.birthday < self._married:
+                print(f'ERROR: Child {child_id} ({child.name}) in family {self._uid} was born {child.birthday.strftime("%Y-%m-%d")} before parents\' marriage on {self._married.strftime("%Y-%m-%d")}')
+                valid = False
+
+            if self._divorced is not None:
+                nine_months_after_divorce = self._divorced + timedelta(days=274)
+                if child.birthday > nine_months_after_divorce:
+                    print(f'ERROR: Child {child_id} ({child.name}) in family {self._uid} was born {child.birthday.strftime("%Y-%m-%d")} more than 9 months after parents\' divorce on {self._divorced.strftime("%Y-%m-%d")}')
+                    valid = False
+
+        return valid
     # End validate
 
     ###########################################################################
