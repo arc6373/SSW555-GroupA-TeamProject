@@ -163,6 +163,30 @@ class Family:
         return siblings
     # End order_siblings_by_age
 
+    def validate_dates_before_current_date(self, individuals):
+        result = True
+
+        current_dt = datetime.now()
+
+        # Check Birthday
+        if (self.married is not None):
+            if ( self.married > current_dt ):
+                print(f'ERROR: Married date for ID {self.uid} is after to the current date!')
+                result = False
+            # End if
+        # End if
+
+        # Check Deathday if exists
+        if (self.divorced is not None):
+            if ( self.divorced > current_dt ):
+                print(f'ERROR: Divorced date for ID {self.uid} is after to the current date!')
+                result = False
+            # End if
+        # End if
+
+        return result
+    # End validate_dates_before_current_date
+
     def validate(self, individuals):
         result = True
 
@@ -174,6 +198,9 @@ class Family:
 
         # Validate multiple births
         result &= self.validate_multiple_births(individuals)
+
+        # Validate dates are after the current date
+        result &= self.validate_dates_before_current_date(individuals)
 
         return result
     # End validate

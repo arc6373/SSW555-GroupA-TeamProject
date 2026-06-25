@@ -61,11 +61,36 @@ class Individual:
         return result
     # End validate_less_than_150
 
+    def validate_dates_before_current_date(self):
+        result = True
+
+        current_dt = datetime.now()
+
+        # Check Birthday
+        if (self.birthday is not None):
+            if ( self.birthday > current_dt ):
+                print(f'ERROR: Birthday for ID {self.uid} is after to the current date!')
+                result = False
+            # End if
+        # End if
+
+        # Check Deathday if exists
+        if (self.death is not None):
+            if ( self.death > current_dt ):
+                print(f'ERROR: Death date for ID {self.uid} is after to the current date!')
+                result = False
+            # End if
+        # End if
+
+        return result
+    # End validate_dates_before_current_date
+
     def validate(self):
         result = True
         
         result &= self.validate_less_than_150()
         result &= self.validate_death_after_birth()
+        result &= self.validate_dates_before_current_date()
 
         return result
     # End validate
