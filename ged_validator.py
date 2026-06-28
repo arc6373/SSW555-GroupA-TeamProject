@@ -142,6 +142,45 @@ class GEDCOM_Validator:
 
     # End print_family_info
 
+
+    def validate_unique_name_and_birthday(self):
+        result = True
+
+        # Make a map a list to store
+        name_birthday_map = {}
+
+        # Loop through the list of individuals to fill in the map
+        for individual in self.individuals:
+            key = '{}-{}'.format(
+                individual.name,
+                individual.birthday.strftime('%Y-%m-%d')
+                )
+
+            if (key not in name_birthday_map.keys()):
+                name_birthday_map[key] = []
+            # End if
+
+            name_birthday_map[key].append(individual)
+        # End for
+
+        for key,value in name_birthday_map.items():
+            if (len(value) > 1):
+
+                uids = [ind.uid for ind in value]
+
+                print('ERROR: Individual UIDs {} have the same birthday ({}) and same name ({})'.format(
+                        ','.join(uids),
+                        value[0].birthday.strftime('%Y-%m-%d'),
+                        value[0].name
+                    ))
+
+                result = False
+            # End if
+        # End for
+
+        return result
+    # End validate_unique_name_and_birthday
+
     def validate(self):
         print('\n')
         print('INFO: Starting Validations!')
@@ -158,6 +197,9 @@ class GEDCOM_Validator:
         for family in self.families:
             result &= family.validate(self.individuals)
         # End for
+
+        # Now validate individuals
+        result &= self.validate_unique_name_and_birthday()
 
         if (result is False):
             print('WARN: Validation failed!')
