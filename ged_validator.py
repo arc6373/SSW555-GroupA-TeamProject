@@ -74,7 +74,7 @@ class GEDCOM_Validator:
             fields.append(individual.uid)
             fields.append(individual.name)
             fields.append(individual.gender)
-            fields.append(individual.birthday.strftime("%Y-%m-%d"))
+            fields.append(individual.birthday)
             fields.append(individual.age)
             fields.append(individual.alive)
 
@@ -82,7 +82,7 @@ class GEDCOM_Validator:
             if (individual.death is None):
                 fields.append('N/A')
             else:
-                fields.append(individual.death.strftime("%Y-%m-%d"))
+                fields.append(individual.death)
             # End if-else
             data = individual.child
             fields.append(data if len(data) != 0 else 'N/A')
@@ -173,7 +173,7 @@ class GEDCOM_Validator:
             table = PrettyTable()
             table.field_names = ["ID", "Name", "Birthday", "Death"]
             for indi in result:
-                table.add_row([indi.uid, indi.name, indi.birthday.strftime("%Y-%m-%d"), indi.death.strftime("%Y-%m-%d")])
+                table.add_row([indi.uid, indi.name, indi.birthday, indi.death])
             print(table.get_string())
         else:
             print('None found.')
@@ -182,35 +182,35 @@ class GEDCOM_Validator:
     # End list_living_unmarried_over_30
 
     def validate_unique_ids(self):
-        result = True
+        val = True
 
         # Keep track of individual uids
-        individ_uid_list = []
+        xlist = []
 
-        for individual in self.individuals:
+        for i in self.individuals:
             # Check if the indiviudals unique ID is already in the list
-            if individual.uid in individ_uid_list:
-                print(f'ERROR: US22: Individual UID {individual.uid} is a duplicate UID!')
-                result = False
+            if i.uid in xlist:
+                print(f'ERROR: US22: Individual UID {i.uid} is a duplicate UID!')
+                val = False
             else:
-                individ_uid_list.append(individual.uid)
+                xlist.append(i.uid)
             # End if-else
         # End for
 
         # Keep track of family uids
-        family_uid_list = []
+        ylist = []
 
-        for family in self.families:
-            # Check if the indiviudals unique ID is already in the list
-            if family.uid in family_uid_list:
-                print(f'ERROR: US22: Family UID {family.uid} is a duplicate UID!')
-                result = False
+        for i in self.families:
+            # Check if the family unique ID is already in the list
+            if i.uid in ylist:
+                print(f'ERROR: US22: Family UID {i.uid} is a duplicate UID!')
+                val = False
             else:
-                family_uid_list.append(family.uid)
+                ylist.append(i.uid)
             # End if-else
         # End for        
 
-        return result
+        return val
     # End validate_unique_ids
 
     def validate(self):
@@ -283,7 +283,6 @@ class GEDCOM_Validator:
 
                 # Build individual/family collections
                 if level == '0':
-
                     # A new L0 title was found, store any active items if we are working
                     # on one
                     if (self.current_record_type == 'INDI'):

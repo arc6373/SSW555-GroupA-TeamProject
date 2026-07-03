@@ -39,7 +39,8 @@ class Family:
         wife = next(filter(lambda indi: indi.uid == self._wife_id, individuals), None)
 
         if husband is not None:
-            if husband.birthday >= self._married:
+            husband_birthday = datetime.strptime(husband.birthday, "%d %b %Y")
+            if husband_birthday >= self._married:
                 print(f'ERROR: Husband ID {self._husband_id} was married before their birthday!')
                 result = False
         else:
@@ -47,7 +48,8 @@ class Family:
             result = False
 
         if wife is not None:
-            if wife.birthday >= self._married:
+            wife_birthday = datetime.strptime(wife.birthday, "%d %b %Y")
+            if wife_birthday >= self._married:
                 print(f'ERROR: Wife ID {self._wife_id} was married before their birthday!')
                 result = False
         else:
@@ -71,13 +73,14 @@ class Family:
             if child.birthday is None:
                 continue
 
-            if self._married is not None and child.birthday < self._married:
+            child_birthday = datetime.strptime(child.birthday, "%d %b %Y")
+            if self._married is not None and child_birthday < self._married:
                 print(f'ERROR: Child ID {child_id} was born before the marriage of their parents in family {self._uid}!')
                 result = False
 
             if self._divorced is not None:
                 nine_months_after_divorce = self._divorced + timedelta(days=274)
-                if child.birthday > nine_months_after_divorce:
+                if child_birthday > nine_months_after_divorce:
                     print(f'ERROR: Child ID {child_id} was born more than 9 months after the divorce of their parents in family {self._uid}!')
                     result = False
 
@@ -96,38 +99,8 @@ class Family:
                 continue
             # End if
 
-            birth_date = child.birthday.date()
-
-            if birth_date not in birth_date_counts:
-                birth_date_counts[birth_date] = []
-            # End if
-
-            birth_date_counts[birth_date].append(child_id)
-        # End for
-
-        for birth_date, children in birth_date_counts.items():
-            if len(children) > 5:
-                print(f'ERROR: Family ID {self._uid} has more than five children born on {birth_date}!')
-                result = False
-            # End if
-        # End for
-
-        return result
-    # End validate_multiple_births
-
-    def validate_multiple_births(self, individuals):
-        # US14: No more than five siblings should be born at the same time
-        result = True
-        birth_date_counts = {}
-
-        for child_id in self._children:
-            child = next(filter(lambda indi: indi.uid == child_id, individuals), None)
-
-            if child is None or child.birthday is None:
-                continue
-            # End if
-
-            birth_date = child.birthday.date()
+            child_birthday = datetime.strptime(child.birthday, "%d %b %Y")
+            birth_date = child_birthday.date()
 
             if birth_date not in birth_date_counts:
                 birth_date_counts[birth_date] = []

@@ -40,7 +40,11 @@ class Individual:
         result = True
 
         if self._death is not None and self._birthday is not None:
-            if self._death < self._birthday:
+
+            birthday = datetime.strptime(self._birthday, "%d %b %Y")
+            death = datetime.strptime(self._death, "%d %b %Y")
+            
+            if death < birthday:
                 print(f'ERROR: Individual ID {self._uid} has a death date that precedes their birth date!')
                 result = False
             # End if
@@ -145,17 +149,20 @@ class Individual:
     @birthday.setter
     def birthday(self, value):
         # The birthday will be converted from a string to a datetime obj
-        self._birthday = datetime.strptime(value, "%d %b %Y")
+        self._birthday = value
     # End birthday setter
 
     @property
     def age(self):
         # Calculate the age of the individual
+        birthday = datetime.strptime(self._birthday, "%d %b %Y")
+
         if (self._death is None):
             current_dt = datetime.now()
-            self._age = self.get_year_difference(self._birthday, current_dt)
+            self._age = self.get_year_difference(birthday, current_dt)
         else:
-            self._age = self.get_year_difference(self._birthday, self._death)
+            death = datetime.strptime(self._death, "%d %b %Y")
+            self._age = self.get_year_difference(birthday, death)
         # End if-else
 
         return self._age
@@ -196,7 +203,7 @@ class Individual:
         if (value is None):
             self._death = None
         else:
-            self._death = datetime.strptime(value, "%d %b %Y")
+            self._death = value
         # End if-else
     # End death setter
 
