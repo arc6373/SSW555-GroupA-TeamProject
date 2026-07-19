@@ -266,7 +266,14 @@ class GEDCOM_Validator:
 
         # Now we will want to validate the families
         for family in self.families:
-            result &= family.validate(self.individuals, self.families)
+            result &= family.validate(self.individuals)
+        # End for
+
+        # Validate family relationship rules
+        for family in self.families:
+            result &= family.validate_no_marriages_to_descendants(self.families)
+            result &= family.validate_first_cousins_should_not_marry(self.families)
+            result &= family.validate_aunts_uncles(self.families)
         # End for
 
         # Validate individuals and families

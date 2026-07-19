@@ -242,7 +242,7 @@ class Family:
     # End validate_no_marriages_to_descendants
 
     def get_parents(self, person_id, families):
-        # Helper for US20: find parents of a person
+        # Helper for US20 and US19: find parents of a person
         parents = set()
 
         if person_id is None:
@@ -317,15 +317,61 @@ class Family:
         return result
     # End validate_aunts_uncles
 
+    def validate_fewer_than_15_siblings(self):
+        # US15: There should be fewer than 15 siblings in a family
+        result = True
+
+        if len(self._children) >= 15:
+            print(f'ERROR: US15: Family ID {self._uid} has 15 or more siblings!')
+            result = False
+        # End if
+
+        return result
+    # End validate_fewer_than_15_siblings
+
+    def get_grandparents(self, person_id, families):
+        # Helper for US19: find grandparents of a person
+        grandparents = set()
+        parents = self.get_parents(person_id, families)
+
+        for parent_id in parents:
+            grandparents.update(self.get_parents(parent_id, families))
+        # End for
+
+        return grandparents
+    # End get_grandparents
+
+    def validate_first_cousins_should_not_marry(self, families):
+        # US19: First cousins should not marry one another
+        result = True
+
+        husband_grandparents = self.get_grandparents(self._husband_id, families)
+        wife_grandparents = self.get_grandparents(self._wife_id, families)
+
+        common_grandparents = husband_grandparents.intersection(wife_grandparents)
+
+        if len(common_grandparents) > 0:
+            print(f'ERROR: US19: Husband ID {self._husband_id} and Wife ID {self._wife_id} are first cousins in family {self._uid}!')
+            result = False
+        # End if
+
+        return result
+    # End validate_first_cousins_should_not_marry
+
     def validate_no_sibling_marriage(self, individuals):
+        # US18: Siblings should not marry one another
         result = True
 
         husband = next(filter(lambda indi: indi.uid == self._husband_id, individuals), None)
         wife = next(filter(lambda indi: indi.uid == self._wife_id, individuals), None)
 
-        # Now we will loop through the husband's child families and check if the wife is a child in the same family
+        if husband is None or wife is None:
+            return result
+        # End if
+
+        # Loop through the husband's child families and check if the wife is a child in the same family
         for fam_id in husband.child:
-            if (fam_id in wife.child):
+            if fam_id in wife.child:
                 print(f'ERROR: US18: Family ID {self._uid} has married siblings from family {fam_id}!')
                 result = False
                 break
@@ -335,7 +381,7 @@ class Family:
         return result
     # End validate_no_sibling_marriage
 
-    def validate(self, individuals, families=None):
+    def validate(self, individuals):
         result = True
 
         # Validate birth before marriage
@@ -356,15 +402,8 @@ class Family:
         # Validate no sibling marriages
         result &= self.validate_no_sibling_marriage(individuals)
 
-        # Validate no marriages to descendants
-        if families is not None:
-            result &= self.validate_no_marriages_to_descendants(families)
-        # End if
-
-        # Validate aunts/uncles should not marry nieces/nephews
-        if families is not None:
-            result &= self.validate_aunts_uncles(families)
-        # End if
+        # Validate fewer than 15 siblings
+        result &= self.validate_fewer_than_15_siblings()
 
         return result
     # End validate
