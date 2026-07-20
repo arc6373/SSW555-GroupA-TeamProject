@@ -65,6 +65,9 @@ class GEDCOM_Validator:
     # End get_year_difference
 
     def print_invidiuals(self):
+        # US27: Include each person's current age when listing individuals
+        print('INFO: US27: List of individuals (includes current age):')
+
         # Start the table and add the field names
         table = PrettyTable()
         table.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "Death", "Child", "Spouse"]
@@ -93,6 +96,8 @@ class GEDCOM_Validator:
         # End for
 
         print(table.get_string())
+
+        return self.individuals
     # End print_invidiuals
 
     def print_family(self):
