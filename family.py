@@ -129,6 +129,37 @@ class Family:
         return result
     # End validate_multiple_births
 
+    def validate_unique_children_names(self, individuals):
+        # US25: No more than one child with the same name and birth date should appear in a family
+        result = True
+        name_birthdate_counts = {}
+
+        for child_id in self._children:
+            child = next(filter(lambda indi: indi.uid == child_id, individuals), None)
+
+            if child is None or child.birthday is None or child.name is None:
+                continue
+            # End if
+
+            key = (child.name, child.birthday.date())
+
+            if key not in name_birthdate_counts:
+                name_birthdate_counts[key] = []
+            # End if
+
+            name_birthdate_counts[key].append(child_id)
+        # End for
+
+        for (name, birth_date), children in name_birthdate_counts.items():
+            if len(children) > 1:
+                print(f'ERROR: US25: Family ID {self._uid} has more than one child named {name} born on {birth_date}!')
+                result = False
+            # End if
+        # End for
+
+        return result
+    # End validate_unique_children_names
+
     def validate_parents_not_too_old(self, individuals):
         # US12: Mother should be less than 60 years older than her children and
         # father should be less than 80 years older than his children
@@ -392,6 +423,9 @@ class Family:
 
         # Validate multiple births
         result &= self.validate_multiple_births(individuals)
+
+        # Validate unique children names
+        result &= self.validate_unique_children_names(individuals)
 
         # Validate parents not too old
         result &= self.validate_parents_not_too_old(individuals)
