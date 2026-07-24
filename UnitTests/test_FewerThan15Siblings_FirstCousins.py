@@ -1,4 +1,7 @@
+from unittest.mock import patch
 import unittest
+import io
+
 from family import Family
 
 
@@ -9,16 +12,19 @@ class TestUS15US19(unittest.TestCase):
         children = [f"I{i}" for i in range(1, 15)]
         family = Family(uid="F1", husband_id="I100", wife_id="I101", children=children)
 
-        result = family.validate_fewer_than_15_siblings()
-        self.assertTrue(result)
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            result = family.validate_fewer_than_15_siblings()
+            self.assertTrue(result)
 
     def test_us15_invalid_family_with_15_children(self):
         # US15: A family with 15 children is invalid
         children = [f"I{i}" for i in range(1, 16)]
         family = Family(uid="F1", husband_id="I100", wife_id="I101", children=children)
 
-        result = family.validate_fewer_than_15_siblings()
-        self.assertFalse(result)
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            result = family.validate_fewer_than_15_siblings()
+            self.assertFalse(result)
+
 
     def test_us19_first_cousins_married(self):
         # I3 and I4 are siblings.
@@ -32,8 +38,9 @@ class TestUS15US19(unittest.TestCase):
             Family(uid="F4", husband_id="I6", wife_id="I8", children=[])
         ]
 
-        result = families[3].validate_first_cousins_should_not_marry(families)
-        self.assertFalse(result)
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            result = families[3].validate_first_cousins_should_not_marry(families)
+            self.assertFalse(result)
 
     def test_us19_valid_marriage_not_cousins(self):
         # I5 and I8 do not share grandparents, so this marriage is valid.
@@ -44,8 +51,9 @@ class TestUS15US19(unittest.TestCase):
             Family(uid="F4", husband_id="I5", wife_id="I8", children=[])
         ]
 
-        result = families[3].validate_first_cousins_should_not_marry(families)
-        self.assertTrue(result)
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            result = families[3].validate_first_cousins_should_not_marry(families)
+            self.assertTrue(result)
 
 
 if __name__ == "__main__":
