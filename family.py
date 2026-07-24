@@ -412,6 +412,35 @@ class Family:
         return result
     # End validate_no_sibling_marriage
 
+    def validate_marriage_after_14(self, individuals):
+        # US18: Siblings should not marry one another
+        result = True
+
+        husband = next(filter(lambda indi: indi.uid == self._husband_id, individuals), None)
+        wife = next(filter(lambda indi: indi.uid == self._wife_id, individuals), None)
+
+        if husband is not None:
+            age_at_marriage = self.get_year_difference(husband.birthday, self._married)
+
+            if (age_at_marriage < 14):
+                print(f'ERROR: US10: Husband {husband.uid} in family {self.uid} was less than 14 at the time of marriage!')
+                result = False
+            # End if
+        # End if
+
+
+        if wife is not None:
+            age_at_marriage = self.get_year_difference(wife.birthday, self._married)
+
+            if (age_at_marriage < 14):
+                print(f'ERROR: US10: Wife {wife.uid} in family {self.uid} was less than 14 at the time of marriage!')
+                result = False
+            # End if
+        # End if
+
+        return result
+    # End validate_marriage_after_14
+
     def validate(self, individuals):
         result = True
 
@@ -438,6 +467,9 @@ class Family:
 
         # Validate fewer than 15 siblings
         result &= self.validate_fewer_than_15_siblings()
+
+        # Validate marriage didnt happen under age 14
+        result &= self.validate_marriage_after_14(individuals)
 
         return result
     # End validate
