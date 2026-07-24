@@ -1,4 +1,7 @@
+from unittest.mock import patch
 import unittest
+import io
+
 from family import Family
 
 
@@ -16,8 +19,9 @@ class TestUS17US20(unittest.TestCase):
             Family(uid="F2", husband_id="I1", wife_id="I3", children=[])
         ]
 
-        result = families[1].validate_no_marriages_to_descendants(families)
-        self.assertFalse(result)
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            result = families[1].validate_no_marriages_to_descendants(families)
+            self.assertFalse(result)
 
     def test_us17_parent_married_to_grandchild(self):
         # F1: I1 and I2 have child I3
@@ -29,8 +33,9 @@ class TestUS17US20(unittest.TestCase):
             Family(uid="F3", husband_id="I1", wife_id="I5", children=[])
         ]
 
-        result = families[2].validate_no_marriages_to_descendants(families)
-        self.assertFalse(result)
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            result = families[2].validate_no_marriages_to_descendants(families)
+            self.assertFalse(result)
 
     def test_us17_valid_marriage_not_descendant(self):
         # I3 is child of I1 and I2
@@ -40,8 +45,9 @@ class TestUS17US20(unittest.TestCase):
             Family(uid="F2", husband_id="I3", wife_id="I4", children=[])
         ]
 
-        result = families[1].validate_no_marriages_to_descendants(families)
-        self.assertTrue(result)
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            result = families[1].validate_no_marriages_to_descendants(families)
+            self.assertTrue(result)
 
     # -------------------------
     # US20 Tests
@@ -58,8 +64,9 @@ class TestUS17US20(unittest.TestCase):
             Family(uid="F3", husband_id="I4", wife_id="I6", children=[])
         ]
 
-        result = families[2].validate_aunts_uncles(families)
-        self.assertFalse(result)
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            result = families[2].validate_aunts_uncles(families)
+            self.assertFalse(result)
 
     def test_us20_aunt_married_to_nephew(self):
         # F1: I1 and I2 have children I3 and I4
@@ -72,8 +79,9 @@ class TestUS17US20(unittest.TestCase):
             Family(uid="F3", husband_id="I6", wife_id="I4", children=[])
         ]
 
-        result = families[2].validate_aunts_uncles(families)
-        self.assertFalse(result)
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            result = families[2].validate_aunts_uncles(families)
+            self.assertFalse(result)
 
     def test_us20_valid_marriage_not_aunt_or_uncle(self):
         # I6 marries I7, who is unrelated
@@ -83,8 +91,9 @@ class TestUS17US20(unittest.TestCase):
             Family(uid="F3", husband_id="I6", wife_id="I7", children=[])
         ]
 
-        result = families[2].validate_aunts_uncles(families)
-        self.assertTrue(result)
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            result = families[2].validate_aunts_uncles(families)
+            self.assertTrue(result)
 
 
 if __name__ == "__main__":
