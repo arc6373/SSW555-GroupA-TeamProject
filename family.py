@@ -412,6 +412,67 @@ class Family:
         return result
     # End validate_no_sibling_marriage
 
+    def validate_divorce_before_death(self, individuals):
+        # US06: Divorce can only occur before death of both spouses
+        result = True
+
+        if self._divorced is None:
+            return result
+        # End if
+
+        husband = next(filter(lambda indi: indi.uid == self._husband_id, individuals), None)
+        wife = next(filter(lambda indi: indi.uid == self._wife_id, individuals), None)
+
+        if husband is not None and husband.death is not None:
+            if self._divorced > husband.death:
+                print(f'ERROR: US06: Family ID {self._uid} has divorce date after husband ID {self._husband_id} death date!')
+                result = False
+            # End if
+        # End if
+
+        if wife is not None and wife.death is not None:
+            if self._divorced > wife.death:
+                print(f'ERROR: US06: Family ID {self._uid} has divorce date after wife ID {self._wife_id} death date!')
+                result = False
+            # End if
+        # End if
+
+        return result
+    # End validate_divorce_before_death
+
+    def validate_siblings_spacing(self, individuals):
+        # US13: Birth dates of siblings should be more than 8 months apart
+        # or less than 2 days apart
+        result = True
+        children = []
+
+        for child_id in self._children:
+            child = next(filter(lambda indi: indi.uid == child_id, individuals), None)
+
+            if child is not None and child.birthday is not None:
+                children.append(child)
+            # End if
+        # End for
+
+        for i in range(len(children)):
+            for j in range(i + 1, len(children)):
+                child1 = children[i]
+                child2 = children[j]
+
+                days_apart = abs((child1.birthday - child2.birthday).days)
+
+                # More than 8 months apart is approximately more than 243 days.
+                # Less than 2 days apart allows twins born on nearby calendar days.
+                if days_apart >= 2 and days_apart <= 243:
+                    print(f'ERROR: US13: Siblings ID {child1.uid} and ID {child2.uid} in family {self._uid} have birth dates less than 8 months apart and more than 1 day apart!')
+                    result = False
+                # End if
+            # End for
+        # End for
+
+        return result
+    # End validate_siblings_spacing
+
     def validate(self, individuals):
         result = True
 
@@ -438,6 +499,12 @@ class Family:
 
         # Validate fewer than 15 siblings
         result &= self.validate_fewer_than_15_siblings()
+
+        # Validate divorce before death
+        result &= self.validate_divorce_before_death(individuals)
+
+        # Validate siblings spacing
+        result &= self.validate_siblings_spacing(individuals)
 
         return result
     # End validate
