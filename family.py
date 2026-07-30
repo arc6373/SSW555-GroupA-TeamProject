@@ -412,6 +412,34 @@ class Family:
         return result
     # End validate_no_sibling_marriage
 
+    def validate_marriage_after_14(self, individuals):
+        # US18: Siblings should not marry one another
+        result = True
+
+        husband = next(filter(lambda indi: indi.uid == self._husband_id, individuals), None)
+        wife = next(filter(lambda indi: indi.uid == self._wife_id, individuals), None)
+
+        if husband is not None:
+            age_at_marriage = self.get_year_difference(husband.birthday, self._married)
+
+            if (age_at_marriage < 14):
+                print(f'ERROR: US10: Husband {husband.uid} in family {self.uid} was less than 14 at the time of marriage!')
+                result = False
+            # End if
+        # End if
+
+        if wife is not None:
+            age_at_marriage = self.get_year_difference(wife.birthday, self._married)
+
+            if (age_at_marriage < 14):
+                print(f'ERROR: US10: Wife {wife.uid} in family {self.uid} was less than 14 at the time of marriage!')
+                result = False
+            # End if
+        # End if
+
+        return result
+    # End validate_marriage_after_14
+
     def validate_divorce_before_death(self, individuals):
         # US06: Divorce can only occur before death of both spouses
         result = True
@@ -433,8 +461,7 @@ class Family:
         if wife is not None and wife.death is not None:
             if self._divorced > wife.death:
                 print(f'ERROR: US06: Family ID {self._uid} has divorce date after wife ID {self._wife_id} death date!')
-                result = False
-            # End if
+            # ENd if
         # End if
 
         return result
@@ -500,6 +527,8 @@ class Family:
         # Validate fewer than 15 siblings
         result &= self.validate_fewer_than_15_siblings()
 
+        # Validate marriage didnt happen under age 14
+        result &= self.validate_marriage_after_14(individuals)
         # Validate divorce before death
         result &= self.validate_divorce_before_death(individuals)
 
