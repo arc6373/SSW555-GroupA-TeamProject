@@ -257,6 +257,34 @@ class GEDCOM_Validator:
         return result
     # End validate_unique_ids
 
+    def list_recent_births(self):
+        # US35: List recent births
+        # Get the current datetime
+        current_dt = datetime.now()
+        recent_birth_indis = []
+
+        for indi in self.individuals:
+            # Find the date delta between their birthday and current date
+            delta = current_dt - indi.birthday
+
+            if (delta.days <= 30):
+                recent_birth_indis.append(indi)
+            # End if
+        # End for
+
+        print('US35: List Recent Births')
+        if recent_birth_indis:
+            table = PrettyTable()
+            table.field_names = ["ID", "Name", "Birthday"]
+            for indi in recent_birth_indis:
+                table.add_row([indi.uid, indi.name, indi.birthday.strftime("%Y-%m-%d")])
+            print(table.get_string())
+        else:
+            print('None found.')
+
+        return recent_birth_indis
+    # End list_living_unmarried_over_30
+
     def validate(self):
         print('\n')
         print('INFO: Starting Validations!')
@@ -392,6 +420,10 @@ class GEDCOM_Validator:
         # US33: List orphans
         print()
         self.list_orphans()
+
+        # US35: List recent births
+        print()
+        self.list_recent_births()
 
         # Now we will run validations!
         self.validate()
