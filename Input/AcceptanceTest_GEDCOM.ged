@@ -138,6 +138,10 @@
 2 DATE 2 FEB 2022
 2 PLAC Providence, Rhode Island, USA
 1 FAMC @F5@
+1 FAMS @F6@
+1 DEAT
+2 DATE 18 JAN 2024
+2 PLAC Boston, Massachusetts, USA
 0 @I13@ INDI
 1 NAME Olivia /Carter/
 2 GIVN Olivia
@@ -147,6 +151,10 @@
 2 DATE 2 FEB 2022
 2 PLAC Providence, Rhode Island, USA
 1 FAMC @F5@
+1 FAMS @F6@
+1 DEAT
+2 DATE 18 JAN 2024
+2 PLAC Boston, Massachusetts, USA
 0 @I14@ INDI
 1 NAME Amelia /Carter/
 2 GIVN Amelia
@@ -253,7 +261,7 @@
 2 SURN Taylor
 1 SEX M
 1 BIRT
-2 DATE 15 MAR 2005
+2 DATE 18 MAR 2005
 2 PLAC Boston, Massachusetts, USA
 0 @I26@ INDI
 1 NAME James /Taylor/
@@ -319,4 +327,7 @@
 1 MARR
 2 DATE 15 OCT 2001
 2 PLAC Boston, Massachusetts, USA
+1 DIV
+2 DATE 10 MAY 2026
+2 PLAC Providence, Rhode Island, USA
 0 TRLR
