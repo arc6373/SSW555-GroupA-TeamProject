@@ -1,6 +1,6 @@
 # System Imports
 from prettytable import PrettyTable
-from datetime import datetime
+from datetime import datetime, date
 import sys
 import os
 import re
@@ -285,6 +285,74 @@ class GEDCOM_Validator:
         return recent_birth_indis
     # End list_living_unmarried_over_30
 
+    def list_living_married(self):
+        # US30: List all living married people
+        result = [
+            indi for indi in self.individuals
+            if indi.alive and len(indi.spouse) > 0
+        ]
+
+        print('US30: List living married individuals')
+        if result:
+            table = PrettyTable()
+            table.field_names = ["ID", "Name", "Gender", "Age"]
+            for indi in result:
+                table.add_row([indi.uid, indi.name, indi.gender, indi.age])
+            print(table.get_string())
+        else:
+            print('None found.')
+
+        return result
+    # End list_living_married
+
+    def list_upcoming_birthdays(self):
+        # US38: List all living people whose birthdays occur in the next 30 days
+        today = datetime.now().date()
+        result = []
+
+        for indi in self.individuals:
+            if not indi.alive or indi.birthday is None:
+                continue
+            # End if
+
+            month = indi.birthday.month
+            day = indi.birthday.day
+
+            # Treat Feb 29 birthdays as Feb 28 in non-leap years
+            try:
+                next_birthday = date(today.year, month, day)
+            except ValueError:
+                next_birthday = date(today.year, 2, 28)
+            # End try-except
+
+            if next_birthday < today:
+                try:
+                    next_birthday = date(today.year + 1, month, day)
+                except ValueError:
+                    next_birthday = date(today.year + 1, 2, 28)
+                # End try-except
+            # End if
+
+            delta_days = (next_birthday - today).days
+
+            if delta_days <= 30:
+                result.append(indi)
+            # End if
+        # End for
+
+        print('US38: List upcoming birthdays (next 30 days)')
+        if result:
+            table = PrettyTable()
+            table.field_names = ["ID", "Name", "Gender", "Birthday"]
+            for indi in result:
+                table.add_row([indi.uid, indi.name, indi.gender, indi.birthday.strftime("%Y-%m-%d")])
+            print(table.get_string())
+        else:
+            print('None found.')
+
+        return result
+    # End list_upcoming_birthdays
+
     def validate(self):
         print('\n')
         print('INFO: Starting Validations!')
@@ -424,6 +492,14 @@ class GEDCOM_Validator:
         # US35: List recent births
         print()
         self.list_recent_births()
+
+        # US30: List living married individuals
+        print()
+        self.list_living_married()
+
+        # US38: List upcoming birthdays
+        print()
+        self.list_upcoming_birthdays()
 
         # Now we will run validations!
         self.validate()
